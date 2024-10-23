@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>ChequePDF</title>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Cheque en PDF</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Estilo para la vista previa del cheque */
+        #cheque-preview {
+            width: 500px;
+            height: 250px;
+            border: 2px solid #000;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+        #cheque-preview .fecha {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        #cheque-preview .nombre {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            font-size: 18px;
+        }
+        #cheque-preview .cantidad {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            font-size: 18px;
+        }
+        #cheque-preview .memo {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+        #cheque-preview .firma {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Generador de Cheques en PDF</h1>
+        <p>Rellena los datos del cheque y genera tu copia en PDF</p>
+    </header>
+
+    <section id="form-section">
+        <h2>Datos del Cheque</h2>
+        <form id="chequeForm">
+            <label for="nombre">Nombre del Beneficiario:</label>
+            <input type="text" id="nombre" oninput="actualizarPreview()" required>
+
+            <label for="cantidad">Cantidad (en números):</label>
+            <input type="text" id="cantidad" oninput="actualizarPreview()" required>
+
+            <label for="fecha">Fecha (dd/mm/yyyy):</label>
+            <input type="text" id="fecha" oninput="actualizarPreview()" required>
+
+            <label for="memo">Memo (Concepto):</label>
+            <input type="text" id="memo" oninput="actualizarPreview()">
+
+            <button type="button" onclick="generarPDF()">Generar PDF</button>
+        </form>
+
+        <!-- Vista Previa del Cheque -->
+        <div id="cheque-preview">
+            <div class="fecha" id="fecha-preview"></div>
+            <div class="nombre" id="nombre-preview">Nombre del Beneficiario</div>
+            <div class="cantidad" id="cantidad-preview">$0.00</div>
+            <div class="memo" id="memo-preview">Memo</div>
+            <div class="firma">________________________</div>
+        </div>
+    </section>
+
+    <script>
+        function actualizarPreview() {
+            // Obtener valores del formulario
+            const nombre = document.getElementById('nombre').value;
+            const cantidad = document.getElementById('cantidad').value;
+            const fecha = document.getElementById('fecha').value;
+            const memo = document.getElementById('memo').value;
+
+            // Actualizar vista previa
+            document.getElementById('nombre-preview').textContent = nombre || "Nombre del Beneficiario";
+            document.getElementById('cantidad-preview').textContent = "$" + (cantidad || "0.00");
+            document.getElementById('fecha-preview').textContent = fecha || "";
+            document.getElementById('memo-preview').textContent = memo || "Memo";
+        }
+
+        function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Obtener valores del formulario
+            const nombre = document.getElementById('nombre').value;
+            const cantidad = document.getElementById('cantidad').value;
+            const fecha = document.getElementById('fecha').value;
+            const memo = document.getElementById('memo').value;
+
+            // Estilo del cheque sin etiquetas de texto, solo los valores
+            doc.setFontSize(12);
+
+            // Fecha (arriba a la derecha)
+            doc.text(fecha, 150, 30);
+
+            // Beneficiario (en el centro, alineado a la izquierda)
+            doc.text(nombre, 20, 50);
+
+            // Cantidad (alineado a la derecha)
+            doc.text(cantidad, 160, 50);
+
+            // Memo (abajo a la izquierda)
+            doc.text(memo, 20, 80);
+
+            // Guardar el PDF
+            doc.save("cheque.pdf");
+        }
+    </script>
+</body>
+</html>
+<!-- partial -->
+</body>
+</html>
