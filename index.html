@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>ChequePDF</title>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Cheque en PDF</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+       <style>
+        /* Estilos para la vista previa del cheque */
+        #cheque-preview {
+            width: 600px;
+            height: 300px;
+            border: 3px solid #0f9d58;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+        #cheque-preview .info {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        #cheque-preview .right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        #cheque-preview .order-of,
+        #cheque-preview .amount,
+        #cheque-preview .bank,
+        #cheque-preview .memo,
+        #cheque-preview .firma {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #cheque-preview .line {
+            width: 400px;
+            border-bottom: 1px solid black;
+        }
+        #cheque-preview .firma .line {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generar Cheque</h1>
+
+    <form id="chequeForm">
+        <label for="fecha">Fecha:</label>
+        <input type="text" id="fecha" placeholder="MM/DD/AAAA" required><br>
+
+        <label for="nombre">Páguese a la orden de:</label>
+        <input type="text" id="nombre" required><br>
+
+        <label for="cantidad">Cantidad (en números):</label>
+        <input type="text" id="cantidad" required><br>
+
+        <label for="cantidad-texto">Cantidad (en letras):</label>
+        <input type="text" id="cantidad-texto" required><br>
+
+        <label for="memo">Memo (Concepto):</label>
+        <input type="text" id="memo" required><br><br>
+
+        <button type="button" onclick="generarPDF()">Generar PDF</button>
+    </form>
+
+    <script>
+        function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Configurar fuente y tamaño
+            doc.setFontSize(12);
+
+            // **Fecha** movida más a la derecha
+            const fecha = document.getElementById('fecha').value || "MM/DD/AAAA";
+            doc.text(fecha, 170, 20); // Más a la derecha
+
+            // **Páguese a la orden de (nombre)**
+            const nombre = document.getElementById('nombre').value || "________________________";
+            doc.text(nombre, 30, 35);
+
+            // **Cantidad en letras**, subida más arriba
+            const cantidadTexto = document.getElementById('cantidad-texto').value || "______________________________________________";
+            doc.text(cantidadTexto, 35, 45); // Subido más arriba
+
+            // **Cantidad en números**, movido más a la derecha
+            const cantidad = document.getElementById('cantidad').value || "0.00";
+            doc.text(cantidad, 170, 35); // Más a la derecha
+
+            // **Memo (Concepto)**, subido más arriba
+            const memo = document.getElementById('memo').value || "________________________";
+            doc.text(memo, 30, 70); // Subido más arriba
+
+            // Guardar el PDF
+            doc.save("cheque.pdf");
+        }
+    </script>
+</body>
+</html>
+<!-- partial -->
+</body>
+</html>
