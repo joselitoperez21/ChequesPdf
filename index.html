@@ -86,21 +86,21 @@
             // Configurar fuente y tamaño
             doc.setFontSize(12);
 
-            // **Fecha** movida más a la derecha
+            // **Fecha** movida más a la derecha y un poco más arriba
             const fecha = document.getElementById('fecha').value || "MM/DD/AAAA";
-            doc.text(fecha, 170, 20); // Más a la derecha
+            doc.text(fecha, 170, 15); // Más a la derecha y un poco más arriba
 
             // **Páguese a la orden de (nombre)**
             const nombre = document.getElementById('nombre').value || "________________________";
-            doc.text(nombre, 30, 35);
+            doc.text(nombre, 30, 25); // Subido más arriba
 
             // **Cantidad en letras**, subida más arriba
             const cantidadTexto = document.getElementById('cantidad-texto').value || "______________________________________________";
-            doc.text(cantidadTexto, 35, 45); // Subido más arriba
+            doc.text(cantidadTexto, 35, 40); // Subido más arriba
 
-            // **Cantidad en números**, movido más a la derecha
+            // **Cantidad en números**, movido más a la derecha y un poco más arriba
             const cantidad = document.getElementById('cantidad').value || "0.00";
-            doc.text(cantidad, 170, 35); // Más a la derecha
+            doc.text(cantidad, 170, 30); // Más a la derecha y un poco más arriba
 
             // **Memo (Concepto)**, subido más arriba
             const memo = document.getElementById('memo').value || "________________________";
