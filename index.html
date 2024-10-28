@@ -88,15 +88,15 @@
 
             // **Fecha** movida más a la derecha y un poco más arriba
             const fecha = document.getElementById('fecha').value || "MM/DD/AAAA";
-            doc.text(fecha, 170, 15); // Más a la derecha y un poco más arriba
+            doc.text(fecha, 180, 15); // Más a la derecha y un poco más arriba
 
             // **Páguese a la orden de (nombre)**
             const nombre = document.getElementById('nombre').value || "________________________";
-            doc.text(nombre, 30, 25); // Subido más arriba
+            doc.text(nombre, 30, 25); // Un poco más arriba
 
-            // **Cantidad en letras**, subida más arriba
+            // **Cantidad en letras**, subida más arriba y movida un poco a la izquierda
             const cantidadTexto = document.getElementById('cantidad-texto').value || "______________________________________________";
-            doc.text(cantidadTexto, 35, 40); // Subido más arriba
+            doc.text(cantidadTexto, 25, 40); // Subido más arriba y movido un poco a la izquierda
 
             // **Cantidad en números**, movido más a la derecha y un poco más arriba
             const cantidad = document.getElementById('cantidad').value || "0.00";
