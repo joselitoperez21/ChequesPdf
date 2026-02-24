@@ -1,300 +1,117 @@
 <!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>ChequePDF</title>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ChequePDF</title>
-
-  <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      text-align: center;
-      padding: 20px;
-    }
-
-    h1 { font-size: 2rem; margin-bottom: 14px; }
-
-    form {
-      max-width: 560px;
-      margin: 0 auto;
-      text-align: left;
-      display: inline-block;
-      background: #fff;
-      padding: 18px;
-      border-radius: 10px;
-      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-      width: 100%;
-    }
-
-    label {
-      display: block;
-      margin: 10px 0 6px;
-      font-weight: 600;
-    }
-
-    input[type="text"] {
-      padding: 10px;
-      width: 100%;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    .hr {
-      margin: 14px 0;
-      border: 0;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .section-title {
-      font-size: 1.05rem;
-      margin-top: 6px;
-      margin-bottom: 8px;
-    }
-
-    .hint {
-      font-size: 0.9rem;
-      opacity: 0.8;
-      margin-bottom: 6px;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 8px;
-      font-weight: 700;
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    button:hover { background-color: #45a049; }
-
-    .preview {
-      max-width: 560px;
-      margin: 16px auto 0;
-      text-align: left;
-      background: #fff;
-      padding: 14px 18px;
-      border-radius: 10px;
-      box-shadow: 0px 4px 8px rgba(0,0,0,0.08);
-      width: 100%;
-    }
-
-    .preview .title {
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .preview .line {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px dashed #eee;
-      font-size: 0.95rem;
-    }
-
-    .preview .line:last-child { border-bottom: 0; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Cheque en PDF</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+       <style>
+        /* Estilos para la vista previa del cheque */
+        #cheque-preview {
+            width: 600px;
+            height: 300px;
+            border: 3px solid #0f9d58;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+        #cheque-preview .info {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        #cheque-preview .right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        #cheque-preview .order-of,
+        #cheque-preview .amount,
+        #cheque-preview .bank,
+        #cheque-preview .memo,
+        #cheque-preview .firma {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #cheque-preview .line {
+            width: 400px;
+            border-bottom: 1px solid black;
+        }
+        #cheque-preview .firma .line {
+            width: 200px;
+        }
+    </style>
 </head>
-
 <body>
-  <h1>Generar Cheque</h1>
+    <h1>Generar Cheque</h1>
 
-  <form id="chequeForm">
-    <label for="fecha">Fecha:</label>
-    <input type="text" id="fecha" placeholder="MM/DD/AAAA" required />
+    <form id="chequeForm">
+        <label for="fecha">Fecha:</label>
+        <input type="text" id="fecha" placeholder="MM/DD/AAAA" required><br>
 
-    <label for="nombre">Páguese a la orden de:</label>
-    <input type="text" id="nombre" required />
+        <label for="nombre">Páguese a la orden de:</label>
+        <input type="text" id="nombre" required><br>
 
-    <label for="cantidad">Cantidad (en números):</label>
-    <input type="text" id="cantidad" placeholder="0.00" required />
+        <label for="cantidad">Cantidad (en números):</label>
+        <input type="text" id="cantidad" required><br>
 
-    <label for="cantidad-texto">Cantidad (en letras):</label>
-    <input type="text" id="cantidad-texto" required />
+        <label for="cantidad-texto">Cantidad (en letras):</label>
+        <input type="text" id="cantidad-texto" required><br>
 
-    <label for="memo">Memo (Concepto):</label>
-    <input type="text" id="memo" required />
+        <label for="memo">Memo (Concepto):</label>
+        <input type="text" id="memo" required><br><br>
 
-    <hr class="hr" />
+        <button type="button" onclick="generarPDF()">Generar PDF</button>
+    </form>
 
-    <div class="section-title">Retenciones (para contable)</div>
-    <div class="hint">Esto sale <b>abajo</b> del cheque en el PDF (no dentro del cheque).</div>
+    <script>
+        function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-    <div class="row">
-      <div>
-        <label for="ret-hacienda">Retención Hacienda:</label>
-        <input type="text" id="ret-hacienda" value="0.00" />
-      </div>
-      <div>
-        <label for="ret-ss">Retención Seguro Social:</label>
-        <input type="text" id="ret-ss" value="0.00" />
-      </div>
-    </div>
+            // Configurar fuente y tamaño
+            doc.setFontSize(12);
 
-    <label for="ret-medicare">Retención Medicare:</label>
-    <input type="text" id="ret-medicare" value="0.00" />
+            // **Fecha** movida más a la derecha y un poco más arriba
+            const fecha = document.getElementById('fecha').value || "MM/DD/AAAA";
+            doc.text(fecha, 180, 15); // Más a la derecha y un poco más arriba
 
-    <button type="button" onclick="generarPDF()">Generar PDF</button>
-  </form>
+            // **Páguese a la orden de (nombre)**
+            const nombre = document.getElementById('nombre').value || "________________________";
+            doc.text(nombre, 30, 25); // Un poco más arriba
 
-  <div class="preview" aria-live="polite">
-    <div class="title">Preview de cálculo (no afecta el cheque)</div>
-    <div class="line"><span>Bruto</span><span class="mono" id="pvBruto">0.00</span></div>
-    <div class="line"><span>Total retenciones</span><span class="mono" id="pvTotalRet">0.00</span></div>
-    <div class="line"><span><b>Neto a pagar</b></span><span class="mono" id="pvNeto"><b>0.00</b></span></div>
-  </div>
+            // **Cantidad en letras**, subida más arriba y movida un poco a la izquierda
+            const cantidadTexto = document.getElementById('cantidad-texto').value || "______________________________________________";
+            doc.text(cantidadTexto, 25, 40); // Subido más arriba y movido un poco a la izquierda
 
-<script>
-  function toNumber(val) {
-    const cleaned = String(val ?? "")
-      .replace(/\$/g, "")
-      .replace(/,/g, "")
-      .trim();
-    const n = parseFloat(cleaned);
-    return Number.isFinite(n) ? n : 0;
-  }
-  function fix2(n) { return toNumber(n).toFixed(2); }
+            // **Cantidad en números**, movido más a la derecha y un poco más arriba
+            const cantidad = document.getElementById('cantidad').value || "0.00";
+            doc.text(cantidad, 180, 30); // Un poco más a la derecha
 
-  function generarPDF() {
-    const { jsPDF } = window.jspdf;
+            // **Memo (Concepto)**, subido más arriba
+            const memo = document.getElementById('memo').value || "________________________";
+            doc.text(memo, 30, 70); // Subido más arriba
 
-    // ✅ fijo: Letter + mm
-    const doc = new jsPDF({ orientation: "p", unit: "mm", format: "letter" });
-
-    // -------------------------------------------------------
-    // DATOS
-    // -------------------------------------------------------
-    const fecha = document.getElementById("fecha").value || "MM/DD/AAAA";
-    const nombre = document.getElementById("nombre").value || "________________________";
-    const cantidadTexto = document.getElementById("cantidad-texto").value || "______________________________________________";
-    const memo = document.getElementById("memo").value || "________________________";
-
-    const bruto = toNumber(document.getElementById("cantidad").value);
-    const cantidadNum = fix2(bruto);
-
-    // -------------------------------------------------------
-    // POSICIONES (AJUSTADAS a tu foto)
-    // -------------------------------------------------------
-    const POS = {
-      fechaX: 190,  fechaY: 58,   // fecha en la zona derecha (ajustada)
-      payeeX: 28,   payeeY: 36,   // ✅ línea PAY TO THE ORDER OF
-      amountX: 196, amountY: 36,  // ✅ al lado del $
-      wordsX: 26,   wordsY: 48,   // letras debajo de payee
-      memoX: 22,    memoY: 62     // memo
-    };
-
-    // -------------------------------------------------------
-    // CHEQUE (letra más grande)
-    // -------------------------------------------------------
-    doc.setFont("helvetica", "normal");
-
-    // Payee
-    doc.setFontSize(15);
-    doc.text(nombre, POS.payeeX, POS.payeeY);
-
-    // Fecha
-    doc.setFontSize(11);
-    doc.text(fecha, POS.fechaX, POS.fechaY, { align: "right" });
-
-    // Cantidad num (al lado del $)
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(cantidadNum, POS.amountX, POS.amountY, { align: "right" });
-
-    // Cantidad en letras
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(13);
-    doc.text(cantidadTexto, POS.wordsX, POS.wordsY);
-
-    // Memo
-    doc.setFontSize(12);
-    doc.text(memo, POS.memoX, POS.memoY);
-
-    // -------------------------------------------------------
-    // COMPROBANTE ABAJO (para que NO tape el cheque)
-    // -------------------------------------------------------
-    const retHacienda = toNumber(document.getElementById("ret-hacienda").value);
-    const retSS = toNumber(document.getElementById("ret-ss").value);
-    const retMedicare = toNumber(document.getElementById("ret-medicare").value);
-
-    const totalRet = retHacienda + retSS + retMedicare;
-    const neto = bruto - totalRet;
-
-    // ✅ bien abajo (en Letter, esto evita que tape el cheque)
-    const stubY = 140;
-    const stubH = 90;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.rect(10, stubY, 195, stubH);
-
-    doc.setFont("helvetica", "bold");
-    doc.text("COMPROBANTE DE RETENCIONES (NO ES PARTE DEL CHEQUE)", 12, stubY + 9);
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.text("Empleado(a): " + nombre, 12, stubY + 18);
-    doc.text("Fecha: " + fecha, 205, stubY + 18, { align: "right" });
-
-    doc.line(10, stubY + 22, 205, stubY + 22);
-
-    // ✅ espaciado más grande para que NO se monte
-    let y = stubY + 32;
-    const step = 8; // 8mm entre líneas
-
-    doc.text("Pago bruto:", 12, y);
-    doc.text(fix2(bruto), 205, y, { align: "right" });
-
-    y += step;
-    doc.text("Retención Hacienda:", 12, y);
-    doc.text(fix2(retHacienda), 205, y, { align: "right" });
-
-    y += step;
-    doc.text("Retención Seguro Social:", 12, y);
-    doc.text(fix2(retSS), 205, y, { align: "right" });
-
-    y += step;
-    doc.text("Retención Medicare:", 12, y);
-    doc.text(fix2(retMedicare), 205, y, { align: "right" });
-
-    y += 10;
-    doc.line(10, y, 205, y);
-
-    y += step;
-    doc.text("Total retenciones:", 12, y);
-    doc.text(fix2(totalRet), 205, y, { align: "right" });
-
-    y += 10;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("NETO A PAGAR:", 12, y);
-    doc.text(fix2(neto), 205, y, { align: "right" });
-
-    y += 12;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text("Concepto/Memo: " + memo, 12, y);
-
-    doc.save("cheque.pdf");
-  }
-</script>
+            // Guardar el PDF
+            doc.save("cheque.pdf");
+        }
+    </script>
+</body>
+</html>
+<!-- partial -->
 </body>
 </html>
