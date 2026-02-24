@@ -155,7 +155,6 @@
     <button type="button" onclick="generarPDF()">Generar PDF</button>
   </form>
 
-  <!-- (Opcional) Preview rápido del neto para ti -->
   <div class="preview" aria-live="polite">
     <div class="title">Preview de cálculo (no afecta el cheque)</div>
     <div class="line"><span>Bruto</span><span class="mono" id="pvBruto">0.00</span></div>
@@ -164,7 +163,6 @@
   </div>
 
   <script>
-    // Convierte "1,234.56" a número
     function toNumber(val) {
       const cleaned = String(val ?? "")
         .replace(/\$/g, "")
@@ -187,7 +185,6 @@
       const totalRet = hacienda + ss + medicare;
       const neto = bruto - totalRet;
 
-      // Preview
       document.getElementById("pvBruto").textContent = fix2(bruto);
       document.getElementById("pvTotalRet").textContent = fix2(totalRet);
       document.getElementById("pvNeto").textContent = fix2(neto);
@@ -195,7 +192,6 @@
       return { bruto, hacienda, ss, medicare, totalRet, neto };
     }
 
-    // Recalcula mientras escribes
     ["cantidad", "ret-hacienda", "ret-ss", "ret-medicare"].forEach((id) => {
       document.getElementById(id).addEventListener("input", calcular);
     });
@@ -203,83 +199,119 @@
 
     function generarPDF() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
 
-      // --- TU CHEQUE: MISMA LÓGICA QUE TENÍAS (NO CAMBIADA) ---
-      doc.setFontSize(12);
+      // ✅ IMPORTANTE: Letter para que cuadre con cheques (muchos son en papel letter)
+      const doc = new jsPDF({ unit: "mm", format: "letter" });
 
+      // ======================================================
+      // AJUSTES DE POSICIÓN (si quieres afinar, mueve aquí)
+      // ======================================================
+      const POS = {
+        fechaX: 185,  fechaY: 18,     // arriba derecha
+        payeeX: 28,   payeeY: 32,     // línea PAY TO THE ORDER OF
+        amountX: 195, amountY: 32,    // al lado del $
+        wordsX: 22,   wordsY: 45,     // cantidad en letras
+        memoX: 22,    memoY: 62       // memo abajo izquierda
+      };
+
+      // ======================================================
+      // DATOS
+      // ======================================================
       const fecha = document.getElementById('fecha').value || "MM/DD/AAAA";
-      doc.text(fecha, 180, 15); // igual que tú
-
       const nombre = document.getElementById('nombre').value || "________________________";
-      doc.text(nombre, 30, 25); // igual que tú
-
       const cantidadTexto = document.getElementById('cantidad-texto').value || "______________________________________________";
-      doc.text(cantidadTexto, 25, 40); // igual que tú
-
-      const cantidad = document.getElementById('cantidad').value || "0.00";
-      doc.text(cantidad, 180, 30); // igual que tú (sin $ ni formato)
-
       const memo = document.getElementById('memo').value || "________________________";
-      doc.text(memo, 30, 70); // igual que tú
 
-      // --- SOLO AÑADIDO ABAJO: RETENCIONES + NETO ---
+      const bruto = toNumber(document.getElementById('cantidad').value);
+      const cantidadNum = fix2(bruto); // ✅ siempre 0.00 bien formateado
+
+      // ======================================================
+      // CHEQUE (letra más grande + posiciones corregidas)
+      // ======================================================
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(14); // ✅ más grande general
+
+      // Fecha
+      doc.text(fecha, POS.fechaX, POS.fechaY, { align: "right" });
+
+      // Payee / "AMIGOS..." en la línea de PAY TO THE ORDER OF
+      doc.setFontSize(15);
+      doc.text(nombre, POS.payeeX, POS.payeeY);
+
+      // Cantidad en números al lado del $
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text(cantidadNum, POS.amountX, POS.amountY, { align: "right" });
+
+      // Cantidad en letras
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(14);
+      doc.text(cantidadTexto, POS.wordsX, POS.wordsY);
+
+      // Memo
+      doc.setFontSize(13);
+      doc.text(memo, POS.memoX, POS.memoY);
+
+      // ======================================================
+      // COMPROBANTE ABAJO (para que NO tape el cheque)
+      // ======================================================
       const retHacienda = toNumber(document.getElementById('ret-hacienda').value);
       const retSS = toNumber(document.getElementById('ret-ss').value);
       const retMedicare = toNumber(document.getElementById('ret-medicare').value);
 
-      const bruto = toNumber(document.getElementById('cantidad').value); // bruto = lo que ya pones en cantidad
       const totalRet = retHacienda + retSS + retMedicare;
       const neto = bruto - totalRet;
 
-      // ⬇️ Ajuste: más espacio y sin montarse
-      const stubY = 95;
-      const stubH = 105;
+      // ✅ Lo bajé bastante para que no se monte con el cheque
+      const stubY = 120;   // <-- antes 95 (por eso te tapaba)
+      const stubH = 85;
 
-      doc.rect(10, stubY, 190, stubH);
-
-      doc.setFontSize(12);
-      doc.text("COMPROBANTE DE RETENCIONES (NO ES PARTE DEL CHEQUE)", 12, stubY + 10);
-
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
-      doc.text("Empleado(a): " + nombre, 12, stubY + 20);
-      doc.text("Fecha: " + fecha, 150, stubY + 20);
+      doc.rect(10, stubY, 195, stubH);
 
-      doc.line(10, stubY + 24, 200, stubY + 24);
+      doc.setFont("helvetica", "bold");
+      doc.text("COMPROBANTE DE RETENCIONES (NO ES PARTE DEL CHEQUE)", 12, stubY + 9);
 
-      // pasos de 8 para que quepa mejor
-      let y = stubY + 34;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.text("Empleado(a): " + nombre, 12, stubY + 18);
+      doc.text("Fecha: " + fecha, 205, stubY + 18, { align: "right" });
+
+      doc.line(10, stubY + 22, 205, stubY + 22);
+
+      let y = stubY + 32;
 
       doc.text("Pago bruto:", 12, y);
-      doc.text(fix2(bruto), 160, y);
+      doc.text(fix2(bruto), 205, y, { align: "right" });
 
       y += 8;
       doc.text("Retención Hacienda:", 12, y);
-      doc.text(fix2(retHacienda), 160, y);
+      doc.text(fix2(retHacienda), 205, y, { align: "right" });
 
       y += 8;
       doc.text("Retención Seguro Social:", 12, y);
-      doc.text(fix2(retSS), 160, y);
+      doc.text(fix2(retSS), 205, y, { align: "right" });
 
       y += 8;
       doc.text("Retención Medicare:", 12, y);
-      doc.text(fix2(retMedicare), 160, y);
+      doc.text(fix2(retMedicare), 205, y, { align: "right" });
 
-      // línea antes de totales
       y += 10;
-      doc.line(10, y, 200, y);
+      doc.line(10, y, 205, y);
 
-      // total + neto separados
       y += 8;
       doc.text("Total retenciones:", 12, y);
-      doc.text(fix2(totalRet), 160, y);
+      doc.text(fix2(totalRet), 205, y, { align: "right" });
 
       y += 10;
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.text("NETO A PAGAR:", 12, y);
-      doc.text(fix2(neto), 160, y);
+      doc.text(fix2(neto), 205, y, { align: "right" });
 
       y += 12;
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.text("Concepto/Memo: " + memo, 12, y);
 
